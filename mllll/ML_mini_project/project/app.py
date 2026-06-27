@@ -11,9 +11,10 @@ DATASET_PATH = '../AAPL_2022_2025.csv'
 
 def load_stock_csv(path):
     df = pd.read_csv(path)
-    if 'Date' not in df.columns and 'Price' in df.columns:
+    if 'Date' not in df.columns and any(str(col).endswith('Price') for col in df.columns):
         df = pd.read_csv(path, skiprows=[1, 2])
-        df.rename(columns={'Price': 'Date'}, inplace=True)
+        price_col = next(col for col in df.columns if str(col).endswith('Price'))
+        df.rename(columns={price_col: 'Date'}, inplace=True)
     df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
     return df
 
