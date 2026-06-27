@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockSense AI</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;padding:32px 16px}
+    header{text-align:center;margin-bottom:36px}
+    header h1{font-size:1.9rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px}
+    header p{color:#8b949e;margin-top:8px;font-size:.92rem}
+    .t-icon{background:#cc0000;border-radius:8px;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center}
+    .t-icon svg{width:22px;height:22px}
+    .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:28px 32px;max-width:560px;margin:0 auto 36px}
+    .card h2{font-size:.8rem;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:.07em;margin-bottom:20px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+    .field{flex:1;min-width:140px}
+    .field label{display:block;font-size:.75rem;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+    .field select,.field input{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px 12px;color:#e6edf3;font-size:.92rem;outline:none}
+    .field select:focus,.field input:focus{border-color:#58a6ff}
+    .field select option{background:#161b22}
+    .btn{width:100%;padding:13px;background:#238636;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer}
+    .btn:hover{background:#2ea043}
+    .btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed}
+    .spinner{display:none;width:22px;height:22px;border:3px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .7s linear infinite;margin:14px auto 0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .err{margin-top:14px;padding:12px 16px;background:#2b0d0d;border:1px solid #da3633;border-radius:8px;color:#f85149;font-size:.85rem;display:none}
+    #res{display:none;max-width:1100px;margin:0 auto}
+    .sbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:28px}
+    .chip{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px 18px;text-align:center}
+    .chip .cl{font-size:.68rem;color:#8b949e;text-transform:uppercase}
+    .chip .cv{font-size:1.05rem;font-weight:700;margin-top:2px}
+    .chip.up{border-color:#238636}.chip.up .cv{color:#3fb950}
+    .chip.dn{border-color:#da3633}.chip.dn .cv{color:#f85149}
+    .pills{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+    .pill{padding:9px 20px;border-radius:999px;font-size:.9rem;font-weight:700}
+    .pup{background:#0d2b1a;border:1px solid #238636;color:#3fb950}
+    .pdn{background:#2b0d0d;border:1px solid #da3633;color:#f85149}
+    .pnfo{background:#161b22;border:1px solid #30363d;color:#8b949e}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:32px}
+    .mc{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:18px;position:relative}
+    .mc.up{border-left:4px solid #238636}.mc.dn{border-left:4px solid #da3633}
+    .mn{font-size:.95rem;font-weight:700;margin-bottom:10px}
+    .pb{display:inline-block;padding:3px 13px;border-radius:999px;font-size:.82rem;font-weight:700;margin-bottom:12px}
+    .pbu{background:#0d2b1a;color:#3fb950;border:1px solid #238636}
+    .pbd{background:#2b0d0d;color:#f85149;border:1px solid #da3633}
+    .ct{display:inline-block;margin-left:8px;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px}
+    .cy{background:#0d2b1a;color:#3fb950}.cn{background:#2b0d0d;color:#f85149}
+    .mr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .mi{background:#0d1117;border-radius:6px;padding:8px 10px}
+    .mi .ml{font-size:.68rem;color:#8b949e;text-transform:uppercase;margin-bottom:2px}
+    .mi .mv{font-size:.98rem;font-weight:700;color:#58a6ff}
+    .cf{margin-top:10px;font-size:.78rem;color:#8b949e}
+    .bb{position:absolute;top:12px;right:12px;background:#9e6a03;color:#e3b341;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #e3b341}
+    .tw{overflow-x:auto;margin-top:8px}
+    .st{font-size:.8rem;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+    table{width:100%;border-collapse:collapse;font-size:.87rem}
+    thead th{background:#21262d;color:#8b949e;text-transform:uppercase;font-size:.7rem;padding:10px 14px;text-align:left;border-bottom:1px solid #30363d}
+    tbody tr{border-bottom:1px solid #21262d}tbody tr:hover{background:#161b22}
+    tbody td{padding:10px 14px}
+    .tu{color:#3fb950;font-weight:700}.td{color:#f85149;font-weight:700}
+    .ty{color:#3fb950}.tn{color:#f85149}
+  </style>
+</head>
+<body>
+<header>
+  <h1>
+    <span class="t-icon">
+      <svg viewBox="0 0 22 22" fill="none"><path d="M2 5h18M11 5v12" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </span>
+    StockSense AI
+  </h1>
+  <p>Select a date and options — all 9 ML models will predict tomorrow's price direction</p>
+</header>
+
+<div class="card">
+  <h2>Select Options</h2>
+  <form id="f">
+    <div class="row">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" name="date" id="di" required/>
+      </div>
+      <div class="field">
+        <label>Prediction Type</label>
+        <select name="type">
+          <option value="next_day">Next Day Direction</option>
+          <option value="trend">Short-term Trend</option>
+          <option value="volatility">High Volatility Day</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Model Focus</label>
+        <select name="focus">
+          <option value="all">All Models</option>
+          <option value="ensemble">Ensemble Only</option>
+          <option value="linear">Linear Models</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn" id="sb">Run Prediction</button>
+  </form>
+  <div class="spinner" id="sp"></div>
+  <div class="err" id="em"></div>
+</div>
+
+<div id="res">
+  <div class="sbar" id="sb2"></div>
+  <div class="pills" id="pl"></div>
+  <div class="grid" id="gd"></div>
+  <div class="tw">
+    <div class="st">Full Metrics Comparison</div>
+    <table>
+      <thead><tr>
+        <th>Algorithm</th><th>Prediction</th><th>Correct?</th>
+        <th>Confidence</th><th>Accuracy %</th><th>Precision %</th><th>Recall %</th><th>F1 %</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.getElementById('di').value = '{{ latest_date }}';
+  const form=document.getElementById('f'),sp=document.getElementById('sp'),
+        btn=document.getElementById('sb'),em=document.getElementById('em');
+
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    em.style.display='none';
+    document.getElementById('res').style.display='none';
+    sp.style.display='block'; btn.disabled=true;
+    const p={};
+    new FormData(form).forEach((v,k)=>p[k]=v);
+    try{
+      const r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+      const d=await r.json();
+      if(d.error) throw new Error(d.error);
+      render(d.results,d.stock);
+    }catch(e){em.textContent='Error: '+e.message;em.style.display='block';}
+    finally{sp.style.display='none';btn.disabled=false;}
+  });
+
+  function fmt(n){return Number(n).toLocaleString();}
+
+  function render(results,stock){
+    const isUp=stock.actual==='UP';
+    document.getElementById('sb2').innerHTML=`
+      <div class="chip"><div class="cl">Date</div><div class="cv">${stock.date}</div></div>
+      <div class="chip"><div class="cl">Open</div><div class="cv">$${stock.open}</div></div>
+      <div class="chip"><div class="cl">High</div><div class="cv">$${stock.high}</div></div>
+      <div class="chip"><div class="cl">Low</div><div class="cv">$${stock.low}</div></div>
+      <div class="chip"><div class="cl">Close</div><div class="cv">$${stock.close}</div></div>
+      <div class="chip"><div class="cl">Volume</div><div class="cv">${fmt(stock.volume)}</div></div>
+      <div class="chip ${isUp?'up':'dn'}"><div class="cl">Actual Next Day</div><div class="cv">${isUp?'&#8593;':'&#8595;'} ${stock.actual}</div></div>`;
+
+    const uc=results.filter(r=>r.prediction===1).length,
+          cc=results.filter(r=>r.correct).length,
+          best=results[0];
+    document.getElementById('pl').innerHTML=`
+      <span class="pill pup">&#8593; UP: ${uc} models</span>
+      <span class="pill pdn">&#8595; DOWN: ${results.length-uc} models</span>
+      <span class="pill pnfo">&#10003; Correct: ${cc}/${results.length}</span>
+      <span class="pill pnfo">&#9733; Best: ${best.name} (${best.accuracy}%)</span>`;
+
+    document.getElementById('gd').innerHTML=results.map((r,i)=>`
+      <div class="mc ${r.prediction===1?'up':'dn'}">
+        ${i===0?'<span class="bb">&#9733; Best</span>':''}
+        <div class="mn">${r.name}</div>
+        <div>
+          <span class="pb ${r.prediction===1?'pbu':'pbd'}">${r.prediction===1?'&#8593; UP':'&#8595; DOWN'}</span>
+          <span class="ct ${r.correct?'cy':'cn'}">${r.correct?'&#10003; Correct':'&#10007; Wrong'}</span>
+        </div>
+        <div class="mr">
+          <div class="mi"><div class="ml">Accuracy</div><div class="mv">${r.accuracy}%</div></div>
+          <div class="mi"><div class="ml">Precision</div><div class="mv">${r.precision}%</div></div>
+          <div class="mi"><div class="ml">Recall</div><div class="mv">${r.recall}%</div></div>
+          <div class="mi"><div class="ml">F1-Score</div><div class="mv">${r.f1}%</div></div>
+        </div>
+        ${r.confidence!==null?`<div class="cf">Confidence: ${r.confidence}%</div>`:''}
+      </div>`).join('');
+
+    document.getElementById('tb').innerHTML=results.map(r=>`
+      <tr>
+        <td>${r.name}</td>
+        <td class="${r.prediction===1?'tu':'td'}">${r.prediction===1?'&#8593; UP':'&#8595; DOWN'}</td>
+        <td class="${r.correct?'ty':'tn'}">${r.correct?'&#10003;':'&#10007;'}</td>
+        <td>${r.confidence!==null?r.confidence+'%':'&mdash;'}</td>
+        <td>${r.accuracy}%</td><td>${r.precision}%</td><td>${r.recall}%</td><td>${r.f1}%</td>
+      </tr>`).join('');
+
+    document.getElementById('res').style.display='block';
+    document.getElementById('res').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>
