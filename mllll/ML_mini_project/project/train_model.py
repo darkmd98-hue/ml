@@ -19,9 +19,20 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from imblearn.over_sampling import SMOTE
 
+DATASET_PATH = '../AAPL_2022_2025.csv'
+
+
+def load_stock_csv(path):
+    df = pd.read_csv(path)
+    if 'Date' not in df.columns and 'Price' in df.columns:
+        df = pd.read_csv(path, skiprows=[1, 2])
+        df.rename(columns={'Price': 'Date'}, inplace=True)
+    df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+    return df
+
+
 # Load dataset
-df = pd.read_csv('../tesla.csv')
-df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+df = load_stock_csv(DATASET_PATH)
 
 df['Date'] = pd.to_datetime(df['Date'])
 df.sort_values('Date', inplace=True)

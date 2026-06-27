@@ -6,6 +6,17 @@ from scipy import stats
 
 app = Flask(__name__)
 
+DATASET_PATH = '../AAPL_2022_2025.csv'
+
+
+def load_stock_csv(path):
+    df = pd.read_csv(path)
+    if 'Date' not in df.columns and 'Price' in df.columns:
+        df = pd.read_csv(path, skiprows=[1, 2])
+        df.rename(columns={'Price': 'Date'}, inplace=True)
+    df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+    return df
+
 # Load trained models
 with open('model.pkl', 'rb') as f:
     data = pickle.load(f)
@@ -16,8 +27,7 @@ features = data['features']
 metrics  = data['metrics']
 
 # Load and prepare the dataset for date lookup
-df_raw = pd.read_csv('../tesla.csv')
-df_raw.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+df_raw = load_stock_csv(DATASET_PATH)
 df_raw['Date'] = pd.to_datetime(df_raw['Date'])
 df_raw.sort_values('Date', inplace=True)
 df_raw.reset_index(drop=True, inplace=True)
