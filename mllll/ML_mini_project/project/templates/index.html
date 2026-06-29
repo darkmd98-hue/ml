@@ -127,7 +127,7 @@
     </span>
     StockSense AI
   </h1>
-  <p>Select a date and options — all 9 ML models will predict tomorrow's price direction</p>
+  <p>Select a date and options — ML models will predict the selected market signal</p>
 </header>
 
 <div class="card">
@@ -215,7 +215,7 @@
   function fmt(n){return Number(n).toLocaleString();}
 
   function render(results,stock){
-    const isUp=stock.actual==='UP';
+    const isPositive=stock.actual===stock.positive_label;
     document.getElementById('sb2').innerHTML=`
       <div class="chip"><div class="cl">Date</div><div class="cv">${stock.date}</div></div>
       <div class="chip"><div class="cl">Open</div><div class="cv">$${stock.open}</div></div>
@@ -223,14 +223,15 @@
       <div class="chip"><div class="cl">Low</div><div class="cv">$${stock.low}</div></div>
       <div class="chip"><div class="cl">Close</div><div class="cv">$${stock.close}</div></div>
       <div class="chip"><div class="cl">Volume</div><div class="cv">${fmt(stock.volume)}</div></div>
-      <div class="chip ${isUp?'up':'dn'}"><div class="cl">Actual Next Day</div><div class="cv">${isUp?'&#8593;':'&#8595;'} ${stock.actual}</div></div>`;
+      <div class="chip ${isPositive?'up':'dn'}"><div class="cl">${stock.actual_label}</div><div class="cv">${isPositive?'&#8593;':'&#8595;'} ${stock.actual}</div></div>`;
 
     const uc=results.filter(r=>r.prediction===1).length,
           cc=results.filter(r=>r.correct).length,
           best=results[0];
     document.getElementById('pl').innerHTML=`
-      <span class="pill pup">&#8593; UP: ${uc} models</span>
-      <span class="pill pdn">&#8595; DOWN: ${results.length-uc} models</span>
+      <span class="pill pnfo">${stock.prediction_type}</span>
+      <span class="pill pup">&#8593; ${stock.positive_label}: ${uc} models</span>
+      <span class="pill pdn">&#8595; ${stock.negative_label}: ${results.length-uc} models</span>
       <span class="pill pnfo">&#10003; Correct: ${cc}/${results.length}</span>
       <span class="pill pnfo">&#9733; Best: ${best.name} (${best.accuracy}%)</span>`;
 
@@ -239,7 +240,7 @@
         ${i===0?'<span class="bb">&#9733; Best</span>':''}
         <div class="mn">${r.name}</div>
         <div>
-          <span class="pb ${r.prediction===1?'pbu':'pbd'}">${r.prediction===1?'&#8593; UP':'&#8595; DOWN'}</span>
+          <span class="pb ${r.prediction===1?'pbu':'pbd'}">${r.prediction===1?'&#8593;':'&#8595;'} ${r.label}</span>
           <span class="ct ${r.correct?'cy':'cn'}">${r.correct?'&#10003; Correct':'&#10007; Wrong'}</span>
         </div>
         <div class="mr">
@@ -254,7 +255,7 @@
     document.getElementById('tb').innerHTML=results.map(r=>`
       <tr>
         <td>${r.name}</td>
-        <td class="${r.prediction===1?'tu':'td'}">${r.prediction===1?'&#8593; UP':'&#8595; DOWN'}</td>
+        <td class="${r.prediction===1?'tu':'td'}">${r.prediction===1?'&#8593;':'&#8595;'} ${r.label}</td>
         <td class="${r.correct?'ty':'tn'}">${r.correct?'&#10003;':'&#10007;'}</td>
         <td>${r.confidence!==null?r.confidence+'%':'&mdash;'}</td>
         <td>${r.accuracy}%</td><td>${r.precision}%</td><td>${r.recall}%</td><td>${r.f1}%</td>

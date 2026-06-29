@@ -20,6 +20,23 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from imblearn.over_sampling import SMOTE
 
 DATASET_PATH = '../AAPL_2022_2025.csv'
+PREDICTION_TYPES = {
+    'next_day': {
+        'name': 'Next Day Direction',
+        'target': lambda df: (df['Close'].shift(-1) > df['Close']).astype(int),
+    },
+    'trend': {
+        'name': 'Short-term Trend',
+        'target': lambda df: (df['Close'].shift(-5) > df['Close']).astype(int),
+    },
+    'volatility': {
+        'name': 'High Volatility Day',
+        'target': lambda df: (
+            (df['High'].shift(-1) - df['Low'].shift(-1)) >
+            df['High_Low_Range'].rolling(window=20, min_periods=5).median()
+        ).astype(int),
+    },
+}
 
 
 def load_stock_csv(path):
@@ -39,7 +56,6 @@ df['Date'] = pd.to_datetime(df['Date'])
 df.sort_values('Date', inplace=True)
 df.reset_index(drop=True, inplace=True)
 
-df['Target']         = (df['Close'].shift(-1) > df['Close']).astype(int)
 df['Price_Change']   = df['Close'] - df['Open']
 df['High_Low_Range'] = df['High'] - df['Low']
 df['Daily_Return']   = df['Close'].pct_change()
@@ -47,32 +63,7 @@ df['MA_5']           = df['Close'].rolling(window=5).mean()
 df['MA_10']          = df['Close'].rolling(window=10).mean()
 df['Volatility']     = df['Close'].rolling(window=5).std()
 
-df.drop(columns=['Date'], inplace=True)
-df.dropna(inplace=True)
-df.reset_index(drop=True, inplace=True)
-
-X = df.drop('Target', axis=1)
-y = df['Target']
-
-smote = SMOTE(random_state=42)
-X_res, y_res = smote.fit_resample(X, y)
-
-df_combined = pd.DataFrame(X_res, columns=X.columns)
-df_combined['Target'] = y_res.values
-z_scores = np.abs(stats.zscore(df_combined.select_dtypes(include='number')))
-mask = (z_scores < 3).all(axis=1)
-df_clean = df_combined[mask].reset_index(drop=True)
-
-X_final = df_clean.drop('Target', axis=1)
-y_final = df_clean['Target']
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X_final, y_final, test_size=0.2, random_state=42, stratify=y_final
-)
-
-scaler = StandardScaler()
-X_train_sc = scaler.fit_transform(X_train)
-X_test_sc  = scaler.transform(X_test)
+base_df = df.drop(columns=['Date']).copy()
 
 model_defs = {
     'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
@@ -86,27 +77,63 @@ model_defs = {
     'Bagging':             BaggingClassifier(n_estimators=100, random_state=42),
 }
 
-trained_models = {}
-model_metrics  = {}
+predictors = {}
 
-for name, m in model_defs.items():
-    m.fit(X_train_sc, y_train)
-    y_pred = m.predict(X_test_sc)
-    model_metrics[name] = {
-        'accuracy':  round(accuracy_score(y_test, y_pred) * 100, 2),
-        'precision': round(precision_score(y_test, y_pred, average='weighted') * 100, 2),
-        'recall':    round(recall_score(y_test, y_pred, average='weighted') * 100, 2),
-        'f1':        round(f1_score(y_test, y_pred, average='weighted') * 100, 2),
+for type_key, config in PREDICTION_TYPES.items():
+    task_df = base_df.copy()
+    task_df['Target'] = config['target'](df)
+    task_df.dropna(inplace=True)
+    task_df.reset_index(drop=True, inplace=True)
+
+    X = task_df.drop('Target', axis=1)
+    y = task_df['Target']
+
+    smote = SMOTE(random_state=42)
+    X_res, y_res = smote.fit_resample(X, y)
+
+    df_combined = pd.DataFrame(X_res, columns=X.columns)
+    df_combined['Target'] = y_res.values
+    z_scores = np.abs(stats.zscore(df_combined.select_dtypes(include='number')))
+    mask = (z_scores < 3).all(axis=1)
+    df_clean = df_combined[mask].reset_index(drop=True)
+
+    X_final = df_clean.drop('Target', axis=1)
+    y_final = df_clean['Target']
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_final, y_final, test_size=0.2, random_state=42, stratify=y_final
+    )
+
+    scaler = StandardScaler()
+    X_train_sc = scaler.fit_transform(X_train)
+    X_test_sc  = scaler.transform(X_test)
+
+    trained_models = {}
+    model_metrics  = {}
+
+    print(f'\n{config["name"]}')
+    for name, model in model_defs.items():
+        m = model.__class__(**model.get_params())
+        m.fit(X_train_sc, y_train)
+        y_pred = m.predict(X_test_sc)
+        model_metrics[name] = {
+            'accuracy':  round(accuracy_score(y_test, y_pred) * 100, 2),
+            'precision': round(precision_score(y_test, y_pred, average='weighted') * 100, 2),
+            'recall':    round(recall_score(y_test, y_pred, average='weighted') * 100, 2),
+            'f1':        round(f1_score(y_test, y_pred, average='weighted') * 100, 2),
+        }
+        trained_models[name] = m
+        print(f'{name}: accuracy={model_metrics[name]["accuracy"]}%')
+
+    predictors[type_key] = {
+        'name': config['name'],
+        'models': trained_models,
+        'scaler': scaler,
+        'features': list(X.columns),
+        'metrics': model_metrics,
     }
-    trained_models[name] = m
-    print(f'{name}: accuracy={model_metrics[name]["accuracy"]}%')
 
 with open('model.pkl', 'wb') as f:
-    pickle.dump({
-        'models':   trained_models,
-        'scaler':   scaler,
-        'features': list(X.columns),
-        'metrics':  model_metrics
-    }, f)
+    pickle.dump({'predictors': predictors}, f)
 
 print('\nAll models saved to model.pkl')
