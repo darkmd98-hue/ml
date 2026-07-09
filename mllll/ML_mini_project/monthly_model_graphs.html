@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monthly Model Graphs</title>
+  <style>
+    body{font-family:Segoe UI,Arial,sans-serif;background:#f5f7fb;color:#111827;margin:0;padding:28px}
+    main{max-width:980px;margin:0 auto}
+    h1{margin:0 0 8px;font-size:1.8rem}
+    p{margin:0 0 20px;color:#5f6b7a}
+    .legend{display:flex;gap:16px;margin:12px 0 24px;flex-wrap:wrap;color:#374151;font-weight:600}
+    .legend span{display:inline-flex;align-items:center;gap:6px}
+    .line{width:30px;height:3px;display:inline-block;background:#0969da}
+    .dash{width:30px;height:0;border-top:3px dashed #cf222e;display:inline-block}
+    .ok{width:14px;height:14px;background:#1f883d;display:inline-block}
+    .bad{width:14px;height:14px;background:#cf222e;display:inline-block}
+    .model-card{background:#fff;border:1px solid #d8dee8;border-radius:8px;padding:20px;margin-bottom:18px}
+    .model-card h2{font-size:1.1rem;margin:0 0 8px}
+    .meta{display:flex;gap:12px;flex-wrap:wrap;color:#5f6b7a;font-size:.9rem;margin-bottom:10px}
+    svg{width:100%;height:auto;display:block}
+    svg text{font-size:12px;fill:#5f6b7a}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Actual vs Predicted Next-Day Close</h1>
+  <p>Month: December 2025 | Tolerance: +/- 2.0% | Training data: before 2023-01-01</p>
+  <div class="legend">
+    <span><i class="line"></i> Actual next close</span>
+    <span><i class="dash"></i> Predicted next close</span>
+    <span><i class="ok"></i> Error within +/-2%</span>
+    <span><i class="bad"></i> Error above +/-2%</span>
+  </div>
+  
+      <section class="model-card">
+        <h2>Linear Regression</h2>
+        <div class="meta">
+          <span>MAPE: 1.62%</span>
+          <span>Within +/-2%: 65.00%</span>
+          <span>Rows: 20</span>
+        </div>
+        <svg viewBox="0 0 760 300" role="img" aria-label="Linear Regression actual versus predicted chart">
+          <rect x="0" y="0" width="760" height="300" rx="10" fill="#ffffff"/>
+          <line x1="44" y1="44" x2="44" y2="256" stroke="#d8dee8"/>
+          <line x1="44" y1="256" x2="716" y2="256" stroke="#d8dee8"/>
+          <text x="12" y="28">$287.27</text>
+          <text x="12" y="260">$263.90</text>
+          <rect x="29.20" y="222.00" width="29.60" height="54.00" fill="#cf222e" opacity=".78"/><rect x="64.57" y="258.40" width="29.60" height="17.60" fill="#1f883d" opacity=".78"/><rect x="99.94" y="266.59" width="29.60" height="9.41" fill="#1f883d" opacity=".78"/><rect x="135.31" y="253.79" width="29.60" height="22.21" fill="#1f883d" opacity=".78"/><rect x="170.67" y="253.72" width="29.60" height="22.28" fill="#1f883d" opacity=".78"/><rect x="206.04" y="251.42" width="29.60" height="24.58" fill="#1f883d" opacity=".78"/><rect x="241.41" y="236.53" width="29.60" height="39.47" fill="#cf222e" opacity=".78"/><rect x="276.78" y="247.10" width="29.60" height="28.90" fill="#1f883d" opacity=".78"/><rect x="312.15" y="232.22" width="29.60" height="43.78" fill="#cf222e" opacity=".78"/><rect x="347.52" y="270.20" width="29.60" height="5.80" fill="#1f883d" opacity=".78"/><rect x="382.88" y="233.71" width="29.60" height="42.29" fill="#cf222e" opacity=".78"/><rect x="418.25" y="263.56" width="29.60" height="12.44" fill="#1f883d" opacity=".78"/><rect x="453.62" y="242.94" width="29.60" height="33.06" fill="#1f883d" opacity=".78"/><rect x="488.99" y="224.74" width="29.60" height="51.26" fill="#cf222e" opacity=".78"/><rect x="524.36" y="266.49" width="29.60" height="9.51" fill="#1f883d" opacity=".78"/><rect x="559.73" y="234.37" width="29.60" height="41.63" fill="#cf222e" opacity=".78"/><rect x="595.09" y="232.11" width="29.60" height="43.89" fill="#cf222e" opacity=".78"/><rect x="630.46" y="246.56" width="29.60" height="29.44" fill="#1f883d" opacity=".78"/><rect x="665.83" y="240.78" width="29.60" height="35.22" fill="#1f883d" opacity=".78"/><rect x="701.20" y="248.77" width="29.60" height="27.23" fill="#1f883d" opacity=".78"/>
+          <polyline points="44.0,58.62 79.37,77.09 114.74,108.34 150.11,125.72 185.47,133.78 220.84,140.21 256.21,125.72 291.58,132.52 326.95,130.25 362.32,168.01 397.68,163.49 433.05,188.57 468.42,185.4 503.79,172.0 539.16,196.45 574.53,183.86 609.89,170.73 645.26,174.44 680.63,171.18 716.0,177.34" fill="none" stroke="#0969da" stroke-width="3"/>
+          <polyline points="44.0,135.06 79.37,101.83 114.74,121.4 150.11,156.34 185.47,164.4 220.84,173.91 256.21,180.14 291.58,172.25 326.95,190.51 362.32,175.88 397.68,220.92 433.05,205.3 468.42,229.9 503.79,241.38 539.16,209.2 574.53,239.93 609.89,230.17 645.26,214.25 680.63,218.87 716.0,214.12" fill="none" stroke="#cf222e" stroke-width="3" stroke-dasharray="7 5"/>
+          <text x="44.00" y="292" text-anchor="middle">01</text><text x="150.11" y="292" text-anchor="middle">04</text><text x="256.21" y="292" text-anchor="middle">09</text><text x="362.32" y="292" text-anchor="middle">12</text><text x="468.42" y="292" text-anchor="middle">17</text><text x="574.53" y="292" text-anchor="middle">22</text><text x="680.63" y="292" text-anchor="middle">26</text><text x="716.00" y="292" text-anchor="middle">29</text>
+        </svg>
+      </section>
+    
+      <section class="model-card">
+        <h2>Ridge Regression</h2>
+        <div class="meta">
+          <span>MAPE: 1.59%</span>
+          <span>Within +/-2%: 65.00%</span>
+          <span>Rows: 20</span>
+        </div>
+        <svg viewBox="0 0 760 300" role="img" aria-label="Ridge Regression actual versus predicted chart">
+          <rect x="0" y="0" width="760" height="300" rx="10" fill="#ffffff"/>
+          <line x1="44" y1="44" x2="44" y2="256" stroke="#d8dee8"/>
+          <line x1="44" y1="256" x2="716" y2="256" stroke="#d8dee8"/>
+          <text x="12" y="28">$287.26</text>
+          <text x="12" y="260">$264.01</text>
+          <rect x="29.20" y="222.00" width="29.60" height="54.00" fill="#cf222e" opacity=".78"/><rect x="64.57" y="258.32" width="29.60" height="17.68" fill="#1f883d" opacity=".78"/><rect x="99.94" y="266.57" width="29.60" height="9.43" fill="#1f883d" opacity=".78"/><rect x="135.31" y="253.80" width="29.60" height="22.20" fill="#1f883d" opacity=".78"/><rect x="170.67" y="253.91" width="29.60" height="22.09" fill="#1f883d" opacity=".78"/><rect x="206.04" y="251.86" width="29.60" height="24.14" fill="#1f883d" opacity=".78"/><rect x="241.41" y="237.38" width="29.60" height="38.62" fill="#cf222e" opacity=".78"/><rect x="276.78" y="248.07" width="29.60" height="27.93" fill="#1f883d" opacity=".78"/><rect x="312.15" y="233.24" width="29.60" height="42.76" fill="#cf222e" opacity=".78"/><rect x="347.52" y="271.16" width="29.60" height="4.84" fill="#1f883d" opacity=".78"/><rect x="382.88" y="234.69" width="29.60" height="41.31" fill="#cf222e" opacity=".78"/><rect x="418.25" y="264.37" width="29.60" height="11.63" fill="#1f883d" opacity=".78"/><rect x="453.62" y="243.85" width="29.60" height="32.15" fill="#1f883d" opacity=".78"/><rect x="488.99" y="225.61" width="29.60" height="50.39" fill="#cf222e" opacity=".78"/><rect x="524.36" y="266.97" width="29.60" height="9.03" fill="#1f883d" opacity=".78"/><rect x="559.73" y="235.47" width="29.60" height="40.53" fill="#cf222e" opacity=".78"/><rect x="595.09" y="233.20" width="29.60" height="42.80" fill="#cf222e" opacity=".78"/><rect x="630.46" y="247.59" width="29.60" height="28.41" fill="#1f883d" opacity=".78"/><rect x="665.83" y="241.73" width="29.60" height="34.27" fill="#1f883d" opacity=".78"/><rect x="701.20" y="249.59" width="29.60" height="26.41" fill="#1f883d" opacity=".78"/>
+          <polyline points="44.0,58.62 79.37,77.19 114.74,108.59 150.11,126.06 185.47,134.16 220.84,140.62 256.21,126.06 291.58,132.89 326.95,130.61 362.32,168.56 397.68,164.01 433.05,189.22 468.42,186.04 503.79,172.57 539.16,197.14 574.53,184.49 609.89,171.29 645.26,175.03 680.63,171.75 716.0,177.94" fill="none" stroke="#0969da" stroke-width="3"/>
+          <polyline points="44.0,135.74 79.37,102.26 114.74,121.8 150.11,156.95 185.47,164.79 220.84,174.02 256.21,179.78 291.58,171.64 326.95,190.0 362.32,175.18 397.68,220.62 433.05,205.01 468.42,229.71 503.79,241.38 539.16,209.35 574.53,239.57 609.89,229.77 645.26,213.79 680.63,218.57 716.0,213.93" fill="none" stroke="#cf222e" stroke-width="3" stroke-dasharray="7 5"/>
+          <text x="44.00" y="292" text-anchor="middle">01</text><text x="150.11" y="292" text-anchor="middle">04</text><text x="256.21" y="292" text-anchor="middle">09</text><text x="362.32" y="292" text-anchor="middle">12</text><text x="468.42" y="292" text-anchor="middle">17</text><text x="574.53" y="292" text-anchor="middle">22</text><text x="680.63" y="292" text-anchor="middle">26</text><text x="716.00" y="292" text-anchor="middle">29</text>
+        </svg>
+      </section>
+    
+      <section class="model-card">
+        <h2>Random Forest Regressor</h2>
+        <div class="meta">
+          <span>MAPE: 38.11%</span>
+          <span>Within +/-2%: 0.00%</span>
+          <span>Rows: 20</span>
+        </div>
+        <svg viewBox="0 0 760 300" role="img" aria-label="Random Forest Regressor actual versus predicted chart">
+          <rect x="0" y="0" width="760" height="300" rx="10" fill="#ffffff"/>
+          <line x1="44" y1="44" x2="44" y2="256" stroke="#d8dee8"/>
+          <line x1="44" y1="256" x2="716" y2="256" stroke="#d8dee8"/>
+          <text x="12" y="28">$294.91</text>
+          <text x="12" y="260">$160.81</text>
+          <rect x="29.20" y="222.00" width="29.60" height="54.00" fill="#cf222e" opacity=".78"/><rect x="64.57" y="222.63" width="29.60" height="53.37" fill="#cf222e" opacity=".78"/><rect x="99.94" y="223.29" width="29.60" height="52.71" fill="#cf222e" opacity=".78"/><rect x="135.31" y="223.87" width="29.60" height="52.13" fill="#cf222e" opacity=".78"/><rect x="170.67" y="224.16" width="29.60" height="51.84" fill="#cf222e" opacity=".78"/><rect x="206.04" y="224.40" width="29.60" height="51.60" fill="#cf222e" opacity=".78"/><rect x="241.41" y="223.96" width="29.60" height="52.04" fill="#cf222e" opacity=".78"/><rect x="276.78" y="223.87" width="29.60" height="52.13" fill="#cf222e" opacity=".78"/><rect x="312.15" y="223.75" width="29.60" height="52.25" fill="#cf222e" opacity=".78"/><rect x="347.52" y="225.01" width="29.60" height="50.99" fill="#cf222e" opacity=".78"/><rect x="382.88" y="224.86" width="29.60" height="51.14" fill="#cf222e" opacity=".78"/><rect x="418.25" y="226.10" width="29.60" height="49.90" fill="#cf222e" opacity=".78"/><rect x="453.62" y="225.87" width="29.60" height="50.13" fill="#cf222e" opacity=".78"/><rect x="488.99" y="225.48" width="29.60" height="50.52" fill="#cf222e" opacity=".78"/><rect x="524.36" y="226.55" width="29.60" height="49.45" fill="#cf222e" opacity=".78"/><rect x="559.73" y="225.51" width="29.60" height="50.49" fill="#cf222e" opacity=".78"/><rect x="595.09" y="225.20" width="29.60" height="50.80" fill="#cf222e" opacity=".78"/><rect x="630.46" y="225.30" width="29.60" height="50.70" fill="#cf222e" opacity=".78"/><rect x="665.83" y="225.13" width="29.60" height="50.87" fill="#cf222e" opacity=".78"/><rect x="701.20" y="225.28" width="29.60" height="50.72" fill="#cf222e" opacity=".78"/>
+          <polyline points="44.0,58.62 79.37,61.84 114.74,67.28 150.11,70.31 185.47,71.72 220.84,72.84 256.21,70.31 291.58,71.5 326.95,71.1 362.32,77.68 397.68,76.89 433.05,81.27 468.42,80.71 503.79,78.38 539.16,82.64 574.53,80.44 609.89,78.16 645.26,78.8 680.63,78.24 716.0,79.31" fill="none" stroke="#0969da" stroke-width="3"/>
+          <polyline points="44.0,239.45 79.37,239.29 114.74,240.41 150.11,240.36 185.47,240.29 220.84,240.19 256.21,240.08 291.58,241.08 326.95,241.24 362.32,241.21 397.68,241.22 433.05,239.98 468.42,240.38 503.79,240.14 539.16,239.44 574.53,241.34 609.89,240.91 645.26,241.01 680.63,241.2 716.0,241.38" fill="none" stroke="#cf222e" stroke-width="3" stroke-dasharray="7 5"/>
+          <text x="44.00" y="292" text-anchor="middle">01</text><text x="150.11" y="292" text-anchor="middle">04</text><text x="256.21" y="292" text-anchor="middle">09</text><text x="362.32" y="292" text-anchor="middle">12</text><text x="468.42" y="292" text-anchor="middle">17</text><text x="574.53" y="292" text-anchor="middle">22</text><text x="680.63" y="292" text-anchor="middle">26</text><text x="716.00" y="292" text-anchor="middle">29</text>
+        </svg>
+      </section>
+    
+      <section class="model-card">
+        <h2>Gradient Boosting Regressor</h2>
+        <div class="meta">
+          <span>MAPE: 39.04%</span>
+          <span>Within +/-2%: 0.00%</span>
+          <span>Rows: 20</span>
+        </div>
+        <svg viewBox="0 0 760 300" role="img" aria-label="Gradient Boosting Regressor actual versus predicted chart">
+          <rect x="0" y="0" width="760" height="300" rx="10" fill="#ffffff"/>
+          <line x1="44" y1="44" x2="44" y2="256" stroke="#d8dee8"/>
+          <line x1="44" y1="256" x2="716" y2="256" stroke="#d8dee8"/>
+          <text x="12" y="28">$295.26</text>
+          <text x="12" y="260">$156.07</text>
+          <rect x="29.20" y="222.00" width="29.60" height="54.00" fill="#cf222e" opacity=".78"/><rect x="64.57" y="223.32" width="29.60" height="52.68" fill="#cf222e" opacity=".78"/><rect x="99.94" y="222.70" width="29.60" height="53.30" fill="#cf222e" opacity=".78"/><rect x="135.31" y="222.87" width="29.60" height="53.13" fill="#cf222e" opacity=".78"/><rect x="170.67" y="223.93" width="29.60" height="52.07" fill="#cf222e" opacity=".78"/><rect x="206.04" y="224.70" width="29.60" height="51.30" fill="#cf222e" opacity=".78"/><rect x="241.41" y="223.55" width="29.60" height="52.45" fill="#cf222e" opacity=".78"/><rect x="276.78" y="224.16" width="29.60" height="51.84" fill="#cf222e" opacity=".78"/><rect x="312.15" y="224.08" width="29.60" height="51.92" fill="#cf222e" opacity=".78"/><rect x="347.52" y="225.95" width="29.60" height="50.05" fill="#cf222e" opacity=".78"/><rect x="382.88" y="224.24" width="29.60" height="51.76" fill="#cf222e" opacity=".78"/><rect x="418.25" y="226.28" width="29.60" height="49.72" fill="#cf222e" opacity=".78"/><rect x="453.62" y="225.62" width="29.60" height="50.38" fill="#cf222e" opacity=".78"/><rect x="488.99" y="226.11" width="29.60" height="49.89" fill="#cf222e" opacity=".78"/><rect x="524.36" y="227.78" width="29.60" height="48.22" fill="#cf222e" opacity=".78"/><rect x="559.73" y="225.45" width="29.60" height="50.55" fill="#cf222e" opacity=".78"/><rect x="595.09" y="225.84" width="29.60" height="50.16" fill="#cf222e" opacity=".78"/><rect x="630.46" y="225.64" width="29.60" height="50.36" fill="#cf222e" opacity=".78"/><rect x="665.83" y="225.02" width="29.60" height="50.98" fill="#cf222e" opacity=".78"/><rect x="701.20" y="225.61" width="29.60" height="50.39" fill="#cf222e" opacity=".78"/>
+          <polyline points="44.0,58.62 79.37,61.72 114.74,66.97 150.11,69.89 185.47,71.24 220.84,72.32 256.21,69.89 291.58,71.03 326.95,70.65 362.32,76.99 397.68,76.23 433.05,80.44 468.42,79.91 503.79,77.66 539.16,81.76 574.53,79.65 609.89,77.44 645.26,78.07 680.63,77.52 716.0,78.55" fill="none" stroke="#0969da" stroke-width="3"/>
+          <polyline points="44.0,237.55 79.37,235.03 114.74,240.2 150.11,241.38 185.47,238.77 220.84,236.95 256.21,239.18 291.58,237.91 326.95,237.92 362.32,235.82 397.68,240.81 433.05,236.93 468.42,238.67 503.79,235.74 539.16,233.05 574.53,239.06 609.89,236.47 645.26,237.47 680.63,239.1 716.0,237.89" fill="none" stroke="#cf222e" stroke-width="3" stroke-dasharray="7 5"/>
+          <text x="44.00" y="292" text-anchor="middle">01</text><text x="150.11" y="292" text-anchor="middle">04</text><text x="256.21" y="292" text-anchor="middle">09</text><text x="362.32" y="292" text-anchor="middle">12</text><text x="468.42" y="292" text-anchor="middle">17</text><text x="574.53" y="292" text-anchor="middle">22</text><text x="680.63" y="292" text-anchor="middle">26</text><text x="716.00" y="292" text-anchor="middle">29</text>
+        </svg>
+      </section>
+    
+      <section class="model-card">
+        <h2>SVR</h2>
+        <div class="meta">
+          <span>MAPE: 45.52%</span>
+          <span>Within +/-2%: 0.00%</span>
+          <span>Rows: 20</span>
+        </div>
+        <svg viewBox="0 0 760 300" role="img" aria-label="SVR actual versus predicted chart">
+          <rect x="0" y="0" width="760" height="300" rx="10" fill="#ffffff"/>
+          <line x1="44" y1="44" x2="44" y2="256" stroke="#d8dee8"/>
+          <line x1="44" y1="256" x2="716" y2="256" stroke="#d8dee8"/>
+          <text x="12" y="28">$296.50</text>
+          <text x="12" y="260">$139.30</text>
+          <rect x="29.20" y="222.00" width="29.60" height="54.00" fill="#cf222e" opacity=".78"/><rect x="64.57" y="222.43" width="29.60" height="53.57" fill="#cf222e" opacity=".78"/><rect x="99.94" y="223.17" width="29.60" height="52.83" fill="#cf222e" opacity=".78"/><rect x="135.31" y="223.59" width="29.60" height="52.41" fill="#cf222e" opacity=".78"/><rect x="170.67" y="223.79" width="29.60" height="52.21" fill="#cf222e" opacity=".78"/><rect x="206.04" y="223.94" width="29.60" height="52.06" fill="#cf222e" opacity=".78"/><rect x="241.41" y="223.59" width="29.60" height="52.41" fill="#cf222e" opacity=".78"/><rect x="276.78" y="223.76" width="29.60" height="52.24" fill="#cf222e" opacity=".78"/><rect x="312.15" y="223.70" width="29.60" height="52.30" fill="#cf222e" opacity=".78"/><rect x="347.52" y="224.64" width="29.60" height="51.36" fill="#cf222e" opacity=".78"/><rect x="382.88" y="224.52" width="29.60" height="51.48" fill="#cf222e" opacity=".78"/><rect x="418.25" y="225.16" width="29.60" height="50.84" fill="#cf222e" opacity=".78"/><rect x="453.62" y="225.08" width="29.60" height="50.92" fill="#cf222e" opacity=".78"/><rect x="488.99" y="224.74" width="29.60" height="51.26" fill="#cf222e" opacity=".78"/><rect x="524.36" y="225.36" width="29.60" height="50.64" fill="#cf222e" opacity=".78"/><rect x="559.73" y="225.04" width="29.60" height="50.96" fill="#cf222e" opacity=".78"/><rect x="595.09" y="224.71" width="29.60" height="51.29" fill="#cf222e" opacity=".78"/><rect x="630.46" y="224.80" width="29.60" height="51.20" fill="#cf222e" opacity=".78"/><rect x="665.83" y="224.72" width="29.60" height="51.28" fill="#cf222e" opacity=".78"/><rect x="701.20" y="224.87" width="29.60" height="51.13" fill="#cf222e" opacity=".78"/>
+          <polyline points="44.0,58.62 79.37,61.37 114.74,66.01 150.11,68.6 185.47,69.79 220.84,70.75 256.21,68.6 291.58,69.61 326.95,69.27 362.32,74.88 397.68,74.21 433.05,77.94 468.42,77.47 503.79,75.47 539.16,79.11 574.53,77.24 609.89,75.29 645.26,75.84 680.63,75.35 716.0,76.27" fill="none" stroke="#0969da" stroke-width="3"/>
+          <polyline points="44.0,241.38 79.37,241.38 114.74,241.38 150.11,241.38 185.47,241.38 220.84,241.38 256.21,241.38 291.58,241.38 326.95,241.38 362.32,241.38 397.68,241.38 433.05,241.38 468.42,241.38 503.79,241.38 539.16,241.38 574.53,241.38 609.89,241.38 645.26,241.38 680.63,241.38 716.0,241.38" fill="none" stroke="#cf222e" stroke-width="3" stroke-dasharray="7 5"/>
+          <text x="44.00" y="292" text-anchor="middle">01</text><text x="150.11" y="292" text-anchor="middle">04</text><text x="256.21" y="292" text-anchor="middle">09</text><text x="362.32" y="292" text-anchor="middle">12</text><text x="468.42" y="292" text-anchor="middle">17</text><text x="574.53" y="292" text-anchor="middle">22</text><text x="680.63" y="292" text-anchor="middle">26</text><text x="716.00" y="292" text-anchor="middle">29</text>
+        </svg>
+      </section>
+    
+</main>
+</body>
+</html>

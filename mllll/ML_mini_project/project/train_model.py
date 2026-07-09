@@ -6,6 +6,7 @@ Usage: python train_model.py
 import pandas as pd
 import numpy as np
 import pickle
+from pathlib import Path
 from scipy import stats
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -20,6 +21,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from imblearn.over_sampling import SMOTE
 
 DATASET_PATH = '../AAPL_2022_2025.csv'
+SPLIT_OUTPUT_DIR = Path('../train_test_data')
 PREDICTION_TYPES = {
     'next_day': {
         'name': 'Next Day Direction',
@@ -78,6 +80,7 @@ model_defs = {
 }
 
 predictors = {}
+SPLIT_OUTPUT_DIR.mkdir(exist_ok=True)
 
 for type_key, config in PREDICTION_TYPES.items():
     task_df = base_df.copy()
@@ -85,17 +88,9 @@ for type_key, config in PREDICTION_TYPES.items():
     task_df.dropna(inplace=True)
     task_df.reset_index(drop=True, inplace=True)
 
-    X = task_df.drop('Target', axis=1)
-    y = task_df['Target']
-
-    smote = SMOTE(random_state=42)
-    X_res, y_res = smote.fit_resample(X, y)
-
-    df_combined = pd.DataFrame(X_res, columns=X.columns)
-    df_combined['Target'] = y_res.values
-    z_scores = np.abs(stats.zscore(df_combined.select_dtypes(include='number')))
+    z_scores = np.abs(stats.zscore(task_df.select_dtypes(include='number')))
     mask = (z_scores < 3).all(axis=1)
-    df_clean = df_combined[mask].reset_index(drop=True)
+    df_clean = task_df[mask].reset_index(drop=True)
 
     X_final = df_clean.drop('Target', axis=1)
     y_final = df_clean['Target']
@@ -104,8 +99,18 @@ for type_key, config in PREDICTION_TYPES.items():
         X_final, y_final, test_size=0.2, random_state=42, stratify=y_final
     )
 
+    train_df = X_train.copy()
+    train_df['Target'] = y_train
+    test_df = X_test.copy()
+    test_df['Target'] = y_test
+    train_df.to_csv(SPLIT_OUTPUT_DIR / f'{type_key}_train.csv', index=False)
+    test_df.to_csv(SPLIT_OUTPUT_DIR / f'{type_key}_test.csv', index=False)
+
+    smote = SMOTE(random_state=42)
+    X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+
     scaler = StandardScaler()
-    X_train_sc = scaler.fit_transform(X_train)
+    X_train_sc = scaler.fit_transform(X_train_res)
     X_test_sc  = scaler.transform(X_test)
 
     trained_models = {}
@@ -114,7 +119,7 @@ for type_key, config in PREDICTION_TYPES.items():
     print(f'\n{config["name"]}')
     for name, model in model_defs.items():
         m = model.__class__(**model.get_params())
-        m.fit(X_train_sc, y_train)
+        m.fit(X_train_sc, y_train_res)
         y_pred = m.predict(X_test_sc)
         model_metrics[name] = {
             'accuracy':  round(accuracy_score(y_test, y_pred) * 100, 2),
@@ -129,7 +134,7 @@ for type_key, config in PREDICTION_TYPES.items():
         'name': config['name'],
         'models': trained_models,
         'scaler': scaler,
-        'features': list(X.columns),
+        'features': list(X_final.columns),
         'metrics': model_metrics,
     }
 
