@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import pickle
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 app = Flask(__name__)
 
