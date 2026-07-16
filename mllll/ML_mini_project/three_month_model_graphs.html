@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Three Month Multi-Model Graphs</title>
+  <style>
+    body{font-family:Segoe UI,Arial,sans-serif;background:#f5f7fb;color:#111827;margin:0;padding:28px}
+    main{max-width:1080px;margin:0 auto}
+    h1{font-size:1.9rem;margin:0 0 8px}
+    p{color:#5f6b7a;margin:0 0 20px}
+    .legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0 24px;font-weight:600;color:#374151}
+    .legend span{display:inline-flex;gap:7px;align-items:center}
+    .legend i{width:28px;height:4px;border-radius:999px;display:inline-block}
+    .chart-card{background:#fff;border:1px solid #d8dee8;border-radius:8px;padding:20px;margin-bottom:20px}
+    .chart-card h2{font-size:1.15rem;margin:0 0 8px}
+    .meta{display:flex;gap:12px;flex-wrap:wrap;color:#5f6b7a;font-size:.9rem;margin-bottom:10px}
+    svg{display:block;width:100%;height:auto}
+    svg text{font-size:12px;fill:#5f6b7a}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Three-Month Actual vs Model Predictions</h1>
+  <p>Each graph shows one month. Actual next-day close is plotted with four model predictions in the same graph.</p>
+  <div class="legend"><span><i style="background:#111827"></i>Actual</span><span><i style="background:#f97316"></i>RF - Random Forest</span><span><i style="background:#22c55e"></i>SVM - Support Vector Machine</span><span><i style="background:#38bdf8"></i>DT - Decision Tree</span><span><i style="background:#a855f7"></i>LR - Linear Regression</span></div>
+  
+      <section class="chart-card">
+        <h2>October 2025</h2>
+        <div class="meta"><span>RF MAPE: 33.85%</span><span>SVM MAPE: 41.78%</span><span>DT MAPE: 34.31%</span><span>LR MAPE: 2.06%</span></div>
+        <svg viewBox="0 0 900 380" role="img" aria-label="October 2025 multi-model prediction graph">
+          <rect x="0" y="0" width="900" height="380" rx="12" fill="#ffffff"/>
+          <line x1="58" y1="58" x2="58" y2="322" stroke="#d8dee8"/>
+          <line x1="58" y1="322" x2="842" y2="322" stroke="#d8dee8"/>
+          <text x="12" y="32">$280.27</text>
+          <text x="12" y="326">$140.51</text>
+          <polyline points="58.0,103.08 93.64,101.41 129.27,103.91 164.91,104.31 200.55,101.33 236.18,108.9 271.82,125.42 307.45,120.92 343.09,120.71 378.73,117.76 414.36,121.32 450.0,112.2 485.64,93.46 521.27,92.46 556.91,100.6 592.55,98.47 628.18,92.37 663.82,81.09 699.45,80.73 735.09,79.41 770.73,76.21 806.36,78.15 842.0,80.63" fill="none" stroke="#111827" stroke-width="3"/><polyline points="58.0,266.05 93.64,266.29 129.27,264.49 164.91,266.25 200.55,266.31 236.18,266.03 271.82,266.21 307.45,265.32 343.09,265.27 378.73,264.97 414.36,264.69 450.0,266.05 485.64,264.03 521.27,262.42 556.91,264.95 592.55,265.49 628.18,264.67 663.82,265.08 699.45,263.73 735.09,265.18 770.73,264.94 806.36,264.55 842.0,265.09" fill="none" stroke="#f97316" stroke-width="3"/><polyline points="58.0,303.79 93.64,303.79 129.27,303.79 164.91,303.79 200.55,303.79 236.18,303.79 271.82,303.79 307.45,303.79 343.09,303.79 378.73,303.79 414.36,303.79 450.0,303.79 485.64,303.79 521.27,303.79 556.91,303.79 592.55,303.79 628.18,303.79 663.82,303.79 699.45,303.79 735.09,303.79 770.73,303.79 806.36,303.79 842.0,303.79" fill="none" stroke="#22c55e" stroke-width="3"/><polyline points="58.0,269.69 93.64,269.69 129.27,269.69 164.91,269.69 200.55,269.69 236.18,269.69 271.82,269.69 307.45,266.55 343.09,266.55 378.73,266.55 414.36,266.55 450.0,269.69 485.64,263.73 521.27,268.12 556.91,266.55 592.55,266.55 628.18,266.55 663.82,269.69 699.45,266.55 735.09,266.55 770.73,266.55 806.36,266.55 842.0,258.7" fill="none" stroke="#38bdf8" stroke-width="3"/><polyline points="58.0,112.12 93.64,111.7 129.27,109.21 164.91,112.24 200.55,112.06 236.18,108.88 271.82,117.35 307.45,134.19 343.09,128.67 378.73,128.26 414.36,126.12 450.0,130.31 485.64,120.46 521.27,101.85 556.91,100.4 592.55,110.82 628.18,105.9 663.82,100.29 699.45,89.36 735.09,89.05 770.73,88.0 806.36,85.04 842.0,87.89" fill="none" stroke="#a855f7" stroke-width="3"/>
+          <text x="58.00" y="364" text-anchor="middle">01</text><text x="164.91" y="364" text-anchor="middle">06</text><text x="271.82" y="364" text-anchor="middle">09</text><text x="378.73" y="364" text-anchor="middle">14</text><text x="485.64" y="364" text-anchor="middle">17</text><text x="592.55" y="364" text-anchor="middle">22</text><text x="699.45" y="364" text-anchor="middle">27</text><text x="806.36" y="364" text-anchor="middle">30</text><text x="842.00" y="364" text-anchor="middle">31</text>
+        </svg>
+      </section>
+    
+      <section class="chart-card">
+        <h2>November 2025</h2>
+        <div class="meta"><span>RF MAPE: 37.21%</span><span>SVM MAPE: 44.75%</span><span>DT MAPE: 37.66%</span><span>LR MAPE: 1.96%</span></div>
+        <svg viewBox="0 0 900 380" role="img" aria-label="November 2025 multi-model prediction graph">
+          <rect x="0" y="0" width="900" height="380" rx="12" fill="#ffffff"/>
+          <line x1="58" y1="58" x2="58" y2="322" stroke="#d8dee8"/>
+          <line x1="58" y1="322" x2="842" y2="322" stroke="#d8dee8"/>
+          <text x="12" y="32">$293.17</text>
+          <text x="12" y="326">$139.55</text>
+          <polyline points="58.0,99.06 101.56,98.89 145.11,99.52 188.67,101.75 232.22,99.66 275.78,89.67 319.33,92.73 362.89,93.62 406.44,94.54 450.0,103.03 493.56,103.07 537.11,101.15 580.67,105.11 624.22,96.12 667.78,88.52 711.33,86.72 754.89,85.73 798.44,83.5 842.0,76.21" fill="none" stroke="#111827" stroke-width="3"/><polyline points="58.0,269.64 101.56,269.29 145.11,269.49 188.67,269.13 232.22,269.64 275.78,269.49 319.33,267.56 362.89,268.55 406.44,268.35 450.0,268.45 493.56,268.59 537.11,268.72 580.67,267.43 624.22,268.88 667.78,267.51 711.33,267.02 754.89,268.31 798.44,268.24 842.0,268.05" fill="none" stroke="#f97316" stroke-width="3"/><polyline points="58.0,303.79 101.56,303.79 145.11,303.79 188.67,303.79 232.22,303.79 275.78,303.79 319.33,303.79 362.89,303.79 406.44,303.79 450.0,303.79 493.56,303.79 537.11,303.79 580.67,303.79 624.22,303.79 667.78,303.79 711.33,303.79 754.89,303.79 798.44,303.79 842.0,303.79" fill="none" stroke="#22c55e" stroke-width="3"/><polyline points="58.0,272.76 101.56,272.76 145.11,272.76 188.67,272.76 232.22,272.76 275.78,272.76 319.33,269.91 362.89,269.91 406.44,269.91 450.0,267.35 493.56,269.91 537.11,269.91 580.67,269.91 624.22,267.35 667.78,272.76 711.33,269.91 754.89,269.91 798.44,269.91 842.0,269.91" fill="none" stroke="#38bdf8" stroke-width="3"/><polyline points="58.0,109.08 101.56,105.89 145.11,106.57 188.67,105.98 232.22,109.71 275.78,107.15 319.33,98.05 362.89,101.74 406.44,101.33 450.0,101.83 493.56,110.16 537.11,111.42 580.67,107.79 624.22,113.08 667.78,104.17 711.33,96.87 754.89,94.52 798.44,93.7 842.0,92.26" fill="none" stroke="#a855f7" stroke-width="3"/>
+          <text x="58.00" y="364" text-anchor="middle">03</text><text x="188.67" y="364" text-anchor="middle">06</text><text x="319.33" y="364" text-anchor="middle">11</text><text x="450.00" y="364" text-anchor="middle">14</text><text x="580.67" y="364" text-anchor="middle">19</text><text x="711.33" y="364" text-anchor="middle">24</text><text x="842.00" y="364" text-anchor="middle">28</text>
+        </svg>
+      </section>
+    
+      <section class="chart-card">
+        <h2>December 2025</h2>
+        <div class="meta"><span>RF MAPE: 38.14%</span><span>SVM MAPE: 45.52%</span><span>DT MAPE: 38.51%</span><span>LR MAPE: 1.62%</span></div>
+        <svg viewBox="0 0 900 380" role="img" aria-label="December 2025 multi-model prediction graph">
+          <rect x="0" y="0" width="900" height="380" rx="12" fill="#ffffff"/>
+          <line x1="58" y1="58" x2="58" y2="322" stroke="#d8dee8"/>
+          <line x1="58" y1="322" x2="842" y2="322" stroke="#d8dee8"/>
+          <text x="12" y="32">$296.50</text>
+          <text x="12" y="326">$139.30</text>
+          <polyline points="58.0,76.21 99.26,79.63 140.53,85.41 181.79,88.63 223.05,90.12 264.32,91.31 305.58,88.63 346.84,89.89 388.11,89.47 429.37,96.46 470.63,95.62 511.89,100.26 553.16,99.68 594.42,97.19 635.68,101.72 676.95,99.39 718.21,96.96 759.47,97.65 800.74,97.04 842.0,98.18" fill="none" stroke="#111827" stroke-width="3"/><polyline points="58.0,268.12 99.26,268.16 140.53,269.66 181.79,269.6 223.05,269.48 264.32,269.13 305.58,269.03 346.84,270.18 388.11,270.4 429.37,270.25 470.63,270.38 511.89,268.92 553.16,269.63 594.42,269.25 635.68,268.6 676.95,270.52 718.21,270.04 759.47,270.12 800.74,270.22 842.0,270.47" fill="none" stroke="#f97316" stroke-width="3"/><polyline points="58.0,303.79 99.26,303.79 140.53,303.79 181.79,303.79 223.05,303.79 264.32,303.79 305.58,303.79 346.84,303.79 388.11,303.79 429.37,303.79 470.63,303.79 511.89,303.79 553.16,303.79 594.42,303.79 635.68,303.79 676.95,303.79 718.21,303.79 759.47,303.79 800.74,303.79 842.0,303.79" fill="none" stroke="#22c55e" stroke-width="3"/><polyline points="58.0,270.68 99.26,270.68 140.53,270.68 181.79,270.68 223.05,270.68 264.32,270.68 305.58,270.68 346.84,273.47 388.11,273.47 429.37,273.47 470.63,273.47 511.89,268.18 553.16,270.68 594.42,268.18 635.68,263.7 676.95,273.47 718.21,273.47 759.47,273.47 800.74,273.47 842.0,273.47" fill="none" stroke="#38bdf8" stroke-width="3"/><polyline points="58.0,90.36 99.26,84.21 140.53,87.83 181.79,94.3 223.05,95.79 264.32,97.55 305.58,98.7 346.84,97.24 388.11,100.62 429.37,97.91 470.63,106.25 511.89,103.36 553.16,107.91 594.42,110.04 635.68,104.08 676.95,109.77 718.21,107.96 759.47,105.02 800.74,105.87 842.0,104.99" fill="none" stroke="#a855f7" stroke-width="3"/>
+          <text x="58.00" y="364" text-anchor="middle">01</text><text x="181.79" y="364" text-anchor="middle">04</text><text x="305.58" y="364" text-anchor="middle">09</text><text x="429.37" y="364" text-anchor="middle">12</text><text x="553.16" y="364" text-anchor="middle">17</text><text x="676.95" y="364" text-anchor="middle">22</text><text x="800.74" y="364" text-anchor="middle">26</text><text x="842.00" y="364" text-anchor="middle">29</text>
+        </svg>
+      </section>
+    
+</main>
+</body>
+</html>
