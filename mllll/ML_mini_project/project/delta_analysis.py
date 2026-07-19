@@ -8,45 +8,15 @@ threshold, and reports the model error on meaningful UP/DOWN movements.
 import pickle
 from pathlib import Path
 
-import pandas as pd
+from feature_engineering import add_delta_features
+from preprocessing import DATASET_PATH, preprocess_stock_data
 
-
-DATASET_PATH = Path('../AAPL_2022_2025.csv')
 MODEL_PATH = Path('model.pkl')
 OUTPUT_PATH = Path('../delta_analysis_next_day.csv')
 PREDICTION_TYPE = 'next_day'
 DELTA_PERCENT = 2.0
 TEST_START = '2023-01-01'
 TEST_END = '2025-12-31'
-
-
-def load_stock_csv(path):
-    df = pd.read_csv(path)
-    if 'Date' not in df.columns and any(str(col).endswith('Price') for col in df.columns):
-        df = pd.read_csv(path, skiprows=[1, 2])
-        price_col = next(col for col in df.columns if str(col).endswith('Price'))
-        df.rename(columns={price_col: 'Date'}, inplace=True)
-    df.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
-    return df
-
-
-def prepare_features(df):
-    df = df.copy()
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.sort_values('Date', inplace=True)
-    df.reset_index(drop=True, inplace=True)
-
-    df['Price_Change'] = df['Close'] - df['Open']
-    df['High_Low_Range'] = df['High'] - df['Low']
-    df['Daily_Return'] = df['Close'].pct_change()
-    df['MA_5'] = df['Close'].rolling(window=5).mean()
-    df['MA_10'] = df['Close'].rolling(window=10).mean()
-    df['Volatility'] = df['Close'].rolling(window=5).std()
-    df['Next_Close'] = df['Close'].shift(-1)
-    df['Delta_Percent'] = ((df['Next_Close'] - df['Close']) / df['Close']) * 100
-    df.dropna(inplace=True)
-    df.reset_index(drop=True, inplace=True)
-    return df
 
 
 with MODEL_PATH.open('rb') as f:
@@ -59,7 +29,7 @@ best_model = predictor['models'][best_model_name]
 scaler = predictor['scaler']
 features = predictor['features']
 
-df = prepare_features(load_stock_csv(DATASET_PATH))
+df = add_delta_features(preprocess_stock_data(DATASET_PATH))
 test_df = df[(df['Date'] >= TEST_START) & (df['Date'] <= TEST_END)].copy()
 meaningful_df = test_df[test_df['Delta_Percent'].abs() >= DELTA_PERCENT].copy()
 

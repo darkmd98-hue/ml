@@ -3,24 +3,19 @@ Run this once to train all models and save them.
 Usage: python train_model.py
 """
 
-import pandas as pd
 import numpy as np
 import pickle
 from pathlib import Path
 from scipy import stats
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import (AdaBoostClassifier, RandomForestClassifier,
-                               GradientBoostingClassifier, BaggingClassifier)
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from imblearn.over_sampling import SMOTE
 
-DATASET_PATH = '../AAPL_2022_2025.csv'
+from evaluation import classification_metrics
+from feature_engineering import add_market_features
+from model_training import clone_model, get_classification_models
+from preprocessing import DATASET_PATH, preprocess_stock_data
+
 SPLIT_OUTPUT_DIR = Path('../train_test_data')
 PREDICTION_TYPES = {
     'next_day': {
@@ -41,43 +36,13 @@ PREDICTION_TYPES = {
 }
 
 
-def load_stock_csv(path):
-    df = pd.read_csv(path)
-    if 'Date' not in df.columns and any(str(col).endswith('Price') for col in df.columns):
-        df = pd.read_csv(path, skiprows=[1, 2])
-        price_col = next(col for col in df.columns if str(col).endswith('Price'))
-        df.rename(columns={price_col: 'Date'}, inplace=True)
-    df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
-    return df
-
-
 # Load dataset
-df = load_stock_csv(DATASET_PATH)
-
-df['Date'] = pd.to_datetime(df['Date'])
-df.sort_values('Date', inplace=True)
-df.reset_index(drop=True, inplace=True)
-
-df['Price_Change']   = df['Close'] - df['Open']
-df['High_Low_Range'] = df['High'] - df['Low']
-df['Daily_Return']   = df['Close'].pct_change()
-df['MA_5']           = df['Close'].rolling(window=5).mean()
-df['MA_10']          = df['Close'].rolling(window=10).mean()
-df['Volatility']     = df['Close'].rolling(window=5).std()
+df = preprocess_stock_data(DATASET_PATH)
+df = add_market_features(df)
 
 base_df = df.drop(columns=['Date']).copy()
 
-model_defs = {
-    'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
-    'AdaBoost':            AdaBoostClassifier(n_estimators=100, random_state=42),
-    'KNN':                 KNeighborsClassifier(n_neighbors=5),
-    'Random Forest':       RandomForestClassifier(n_estimators=100, random_state=42),
-    'Decision Tree':       DecisionTreeClassifier(random_state=42),
-    'SVM':                 SVC(kernel='rbf', probability=True, random_state=42),
-    'Naive Bayes':         GaussianNB(),
-    'Gradient Boosting':   GradientBoostingClassifier(n_estimators=100, random_state=42),
-    'Bagging':             BaggingClassifier(n_estimators=100, random_state=42),
-}
+model_defs = get_classification_models()
 
 predictors = {}
 SPLIT_OUTPUT_DIR.mkdir(exist_ok=True)
@@ -118,15 +83,10 @@ for type_key, config in PREDICTION_TYPES.items():
 
     print(f'\n{config["name"]}')
     for name, model in model_defs.items():
-        m = model.__class__(**model.get_params())
+        m = clone_model(model)
         m.fit(X_train_sc, y_train_res)
         y_pred = m.predict(X_test_sc)
-        model_metrics[name] = {
-            'accuracy':  round(accuracy_score(y_test, y_pred) * 100, 2),
-            'precision': round(precision_score(y_test, y_pred, average='weighted') * 100, 2),
-            'recall':    round(recall_score(y_test, y_pred, average='weighted') * 100, 2),
-            'f1':        round(f1_score(y_test, y_pred, average='weighted') * 100, 2),
-        }
+        model_metrics[name] = classification_metrics(y_test, y_pred)
         trained_models[name] = m
         print(f'{name}: accuracy={model_metrics[name]["accuracy"]}%')
 

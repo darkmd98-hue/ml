@@ -13,69 +13,17 @@ from html import escape
 from pathlib import Path
 
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVR
-from sklearn.tree import DecisionTreeRegressor
 
+from feature_engineering import PRICE_FEATURES, prepare_price_prediction_data
+from model_training import get_three_month_graph_models
+from preprocessing import DATASET_PATH, preprocess_stock_data
+from visualization import make_svg_line
 
-DATASET_PATH = Path('../AAPL_2022_2025.csv')
 REPORT_PATH = Path('../three_month_model_graphs.html')
 DETAILS_PATH = Path('../three_month_model_graphs.csv')
 TEST_START = '2023-01-01'
-
-
-def load_stock_csv(path):
-    df = pd.read_csv(path)
-    if 'Date' not in df.columns and any(str(col).endswith('Price') for col in df.columns):
-        df = pd.read_csv(path, skiprows=[1, 2])
-        price_col = next(col for col in df.columns if str(col).endswith('Price'))
-        df.rename(columns={price_col: 'Date'}, inplace=True)
-    df.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
-    return df
-
-
-def prepare_dataset(df):
-    df = df.copy()
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.sort_values('Date', inplace=True)
-    df.reset_index(drop=True, inplace=True)
-
-    df['Price_Change'] = df['Close'] - df['Open']
-    df['High_Low_Range'] = df['High'] - df['Low']
-    df['Daily_Return'] = df['Close'].pct_change()
-    df['MA_5'] = df['Close'].rolling(window=5).mean()
-    df['MA_10'] = df['Close'].rolling(window=10).mean()
-    df['Volatility'] = df['Close'].rolling(window=5).std()
-    df['Next_Close'] = df['Close'].shift(-1)
-    df.dropna(inplace=True)
-    df.reset_index(drop=True, inplace=True)
-    return df
-
-
-def scale_points(values, width, height, padding, min_value, max_value):
-    span = max_value - min_value or 1
-    points = []
-    for idx, value in enumerate(values):
-        x = padding + (idx / max(len(values) - 1, 1)) * (width - 2 * padding)
-        y = padding + (max_value - value) / span * (height - 2 * padding)
-        points.append((round(x, 2), round(y, 2)))
-    return points
-
-
-def polyline(points):
-    return ' '.join(f'{x},{y}' for x, y in points)
-
-
-def make_line(label, color, values, width, height, padding, min_value, max_value, dash=False):
-    points = scale_points(values, width, height, padding, min_value, max_value)
-    dash_attr = ' stroke-dasharray="8 6"' if dash else ''
-    return (
-        f'<polyline points="{polyline(points)}" fill="none" stroke="{color}" '
-        f'stroke-width="3"{dash_attr}/>'
-    )
 
 
 def make_month_chart(month_period, month_df):
@@ -99,11 +47,11 @@ def make_month_chart(month_period, month_df):
         'LR': '#a855f7',
     }
     lines = [
-        make_line('Actual', colors['Actual'], month_df['Actual'].tolist(), width, height, padding, min_value, max_value),
-        make_line('RF', colors['RF'], month_df['RF'].tolist(), width, height, padding, min_value, max_value),
-        make_line('SVM', colors['SVM'], month_df['SVM'].tolist(), width, height, padding, min_value, max_value),
-        make_line('DT', colors['DT'], month_df['DT'].tolist(), width, height, padding, min_value, max_value),
-        make_line('LR', colors['LR'], month_df['LR'].tolist(), width, height, padding, min_value, max_value),
+        make_svg_line(month_df['Actual'].tolist(), colors['Actual'], width, height, padding, min_value, max_value),
+        make_svg_line(month_df['RF'].tolist(), colors['RF'], width, height, padding, min_value, max_value),
+        make_svg_line(month_df['SVM'].tolist(), colors['SVM'], width, height, padding, min_value, max_value),
+        make_svg_line(month_df['DT'].tolist(), colors['DT'], width, height, padding, min_value, max_value),
+        make_svg_line(month_df['LR'].tolist(), colors['LR'], width, height, padding, min_value, max_value),
     ]
 
     tick_labels = []
@@ -135,20 +83,8 @@ def make_month_chart(month_period, month_df):
     """
 
 
-df = prepare_dataset(load_stock_csv(DATASET_PATH))
-features = [
-    'Open',
-    'High',
-    'Low',
-    'Close',
-    'Volume',
-    'Price_Change',
-    'High_Low_Range',
-    'Daily_Return',
-    'MA_5',
-    'MA_10',
-    'Volatility',
-]
+df = prepare_price_prediction_data(preprocess_stock_data(DATASET_PATH))
+features = PRICE_FEATURES
 
 train_df = df[df['Date'] < TEST_START].copy()
 test_df = df[df['Date'] >= TEST_START].copy()
@@ -160,12 +96,7 @@ y_train = train_df['Next_Close']
 scaler = StandardScaler()
 X_train_sc = scaler.fit_transform(X_train)
 
-models = {
-    'RF': RandomForestRegressor(n_estimators=100, random_state=42),
-    'SVM': SVR(kernel='rbf'),
-    'DT': DecisionTreeRegressor(random_state=42),
-    'LR': LinearRegression(),
-}
+models = get_three_month_graph_models()
 
 trained_models = {}
 for label, model in models.items():

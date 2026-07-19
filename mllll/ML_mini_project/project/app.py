@@ -1,78 +1,23 @@
 from flask import Flask, request, jsonify, render_template
 import pickle
-import numpy as np
 import pandas as pd
-from scipy import stats
+
+from feature_engineering import add_classification_targets, add_market_features
+from prediction import MODEL_GROUPS, PREDICTION_LABELS, normalize_predictor_artifact
+from preprocessing import DATASET_PATH, preprocess_stock_data
 
 app = Flask(__name__)
-
-DATASET_PATH = '../AAPL_2022_2025.csv'
-PREDICTION_LABELS = {
-    'next_day': {
-        'actual': 'Actual Next Day',
-        'positive': 'UP',
-        'negative': 'DOWN',
-    },
-    'trend': {
-        'actual': 'Actual 5-Day Trend',
-        'positive': 'UP',
-        'negative': 'DOWN',
-    },
-    'volatility': {
-        'actual': 'Actual Volatility',
-        'positive': 'HIGH',
-        'negative': 'NORMAL',
-    },
-}
-MODEL_GROUPS = {
-    'ensemble': {'AdaBoost', 'Random Forest', 'Decision Tree', 'Gradient Boosting', 'Bagging'},
-    'linear': {'Logistic Regression', 'SVM', 'Naive Bayes'},
-}
-
-
-def load_stock_csv(path):
-    df = pd.read_csv(path)
-    if 'Date' not in df.columns and any(str(col).endswith('Price') for col in df.columns):
-        df = pd.read_csv(path, skiprows=[1, 2])
-        price_col = next(col for col in df.columns if str(col).endswith('Price'))
-        df.rename(columns={price_col: 'Date'}, inplace=True)
-    df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
-    return df
 
 # Load trained models
 with open('model.pkl', 'rb') as f:
     data = pickle.load(f)
 
-predictors = data.get('predictors')
-if predictors is None:
-    predictors = {
-        'next_day': {
-            'name': 'Next Day Direction',
-            'models': data['models'],
-            'scaler': data['scaler'],
-            'features': data['features'],
-            'metrics': data['metrics'],
-        }
-    }
+predictors = normalize_predictor_artifact(data)
 
 # Load and prepare the dataset for date lookup
-df_raw = load_stock_csv(DATASET_PATH)
-df_raw['Date'] = pd.to_datetime(df_raw['Date'])
-df_raw.sort_values('Date', inplace=True)
-df_raw.reset_index(drop=True, inplace=True)
-
-df_raw['Price_Change']   = df_raw['Close'] - df_raw['Open']
-df_raw['High_Low_Range'] = df_raw['High'] - df_raw['Low']
-df_raw['Daily_Return']   = df_raw['Close'].pct_change()
-df_raw['MA_5']           = df_raw['Close'].rolling(window=5).mean()
-df_raw['MA_10']          = df_raw['Close'].rolling(window=10).mean()
-df_raw['Volatility']     = df_raw['Close'].rolling(window=5).std()
-df_raw['Target_next_day'] = (df_raw['Close'].shift(-1) > df_raw['Close']).astype(int)
-df_raw['Target_trend'] = (df_raw['Close'].shift(-5) > df_raw['Close']).astype(int)
-df_raw['Target_volatility'] = (
-    (df_raw['High'].shift(-1) - df_raw['Low'].shift(-1)) >
-    df_raw['High_Low_Range'].rolling(window=20, min_periods=5).median()
-).astype(int)
+df_raw = preprocess_stock_data(DATASET_PATH)
+df_raw = add_market_features(df_raw)
+df_raw = add_classification_targets(df_raw)
 df_raw.dropna(inplace=True)
 df_raw.reset_index(drop=True, inplace=True)
 

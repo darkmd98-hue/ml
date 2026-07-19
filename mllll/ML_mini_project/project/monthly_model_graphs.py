@@ -9,61 +9,18 @@ from html import escape
 from pathlib import Path
 
 import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVR
 
+from feature_engineering import PRICE_FEATURES, prepare_price_prediction_data
+from model_training import get_price_regression_models
+from preprocessing import DATASET_PATH, preprocess_stock_data
+from visualization import polyline, scale_points
 
-DATASET_PATH = Path('../AAPL_2022_2025.csv')
 REPORT_PATH = Path('../monthly_model_graphs.html')
 DETAILS_PATH = Path('../monthly_model_graphs.csv')
 TEST_START = '2023-01-01'
 TOLERANCE_PERCENT = 2.0
-
-
-def load_stock_csv(path):
-    df = pd.read_csv(path)
-    if 'Date' not in df.columns and any(str(col).endswith('Price') for col in df.columns):
-        df = pd.read_csv(path, skiprows=[1, 2])
-        price_col = next(col for col in df.columns if str(col).endswith('Price'))
-        df.rename(columns={price_col: 'Date'}, inplace=True)
-    df.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
-    return df
-
-
-def prepare_dataset(df):
-    df = df.copy()
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.sort_values('Date', inplace=True)
-    df.reset_index(drop=True, inplace=True)
-
-    df['Price_Change'] = df['Close'] - df['Open']
-    df['High_Low_Range'] = df['High'] - df['Low']
-    df['Daily_Return'] = df['Close'].pct_change()
-    df['MA_5'] = df['Close'].rolling(window=5).mean()
-    df['MA_10'] = df['Close'].rolling(window=10).mean()
-    df['Volatility'] = df['Close'].rolling(window=5).std()
-    df['Next_Close'] = df['Close'].shift(-1)
-    df.dropna(inplace=True)
-    df.reset_index(drop=True, inplace=True)
-    return df
-
-
-def scale_points(values, width, height, padding, min_value, max_value):
-    span = max_value - min_value or 1
-    count = len(values)
-    points = []
-    for idx, value in enumerate(values):
-        x = padding + (idx / max(count - 1, 1)) * (width - 2 * padding)
-        y = padding + (max_value - value) / span * (height - 2 * padding)
-        points.append((round(x, 2), round(y, 2)))
-    return points
-
-
-def polyline(points):
-    return ' '.join(f'{x},{y}' for x, y in points)
 
 
 def make_chart(model_name, month_df):
@@ -122,20 +79,8 @@ def make_chart(model_name, month_df):
     """
 
 
-df = prepare_dataset(load_stock_csv(DATASET_PATH))
-features = [
-    'Open',
-    'High',
-    'Low',
-    'Close',
-    'Volume',
-    'Price_Change',
-    'High_Low_Range',
-    'Daily_Return',
-    'MA_5',
-    'MA_10',
-    'Volatility',
-]
+df = prepare_price_prediction_data(preprocess_stock_data(DATASET_PATH))
+features = PRICE_FEATURES
 
 train_df = df[df['Date'] < TEST_START].copy()
 test_df = df[df['Date'] >= TEST_START].copy()
@@ -151,13 +96,7 @@ scaler = StandardScaler()
 X_train_sc = scaler.fit_transform(X_train)
 X_month_sc = scaler.transform(X_month)
 
-models = {
-    'Linear Regression': LinearRegression(),
-    'Ridge Regression': Ridge(alpha=1.0),
-    'Random Forest Regressor': RandomForestRegressor(n_estimators=200, random_state=42),
-    'Gradient Boosting Regressor': GradientBoostingRegressor(n_estimators=200, random_state=42),
-    'SVR': SVR(kernel='rbf'),
-}
+models = get_price_regression_models()
 
 all_results = []
 cards = []
