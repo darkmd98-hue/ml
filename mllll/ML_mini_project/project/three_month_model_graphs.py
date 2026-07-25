@@ -46,13 +46,28 @@ def make_month_chart(month_period, month_df):
         'DT': '#38bdf8',
         'LR': '#a855f7',
     }
-    lines = [
-        make_svg_line(month_df['Actual'].tolist(), colors['Actual'], width, height, padding, min_value, max_value),
-        make_svg_line(month_df['RF'].tolist(), colors['RF'], width, height, padding, min_value, max_value),
-        make_svg_line(month_df['SVM'].tolist(), colors['SVM'], width, height, padding, min_value, max_value),
-        make_svg_line(month_df['DT'].tolist(), colors['DT'], width, height, padding, min_value, max_value),
-        make_svg_line(month_df['LR'].tolist(), colors['LR'], width, height, padding, min_value, max_value),
-    ]
+    lines = []
+    label_positions = []
+    span = max_value - min_value or 1
+    x_end = width - padding + 5
+    for col in series_columns:
+        lines.append(make_svg_line(month_df[col].tolist(), colors[col], width, height, padding, min_value, max_value))
+        last_val = month_df[col].iloc[-1]
+        y_end = padding + (max_value - last_val) / span * (height - 2 * padding)
+        label_positions.append({'col': col, 'y': y_end})
+    
+    label_positions.sort(key=lambda item: item['y'])
+    
+    min_dist = 14
+    for i in range(1, len(label_positions)):
+        if label_positions[i]['y'] - label_positions[i-1]['y'] < min_dist:
+            label_positions[i]['y'] = label_positions[i-1]['y'] + min_dist
+            
+    line_labels = []
+    for pos in label_positions:
+        col = pos['col']
+        y_adj = pos['y']
+        line_labels.append(f'<text x="{x_end}" y="{y_adj + 4}" fill="{colors[col]}" font-weight="bold">{col}</text>')
 
     tick_labels = []
     days = [d.strftime('%d') for d in month_df['Date']]
@@ -66,10 +81,23 @@ def make_month_chart(month_period, month_df):
         mape = mean_absolute_percentage_error(month_df['Actual'], month_df[col]) * 100
         model_metrics.append(f'<span>{col} MAPE: {mape:.2f}%</span>')
 
+    legend_items = [
+        ('Actual', colors['Actual']),
+        ('RF - Random Forest', colors['RF']),
+        ('SVM - Support Vector Machine', colors['SVM']),
+        ('DT - Decision Tree', colors['DT']),
+        ('LR - Linear Regression', colors['LR']),
+    ]
+    legend_html = ''.join(
+        f'<span><i style="background:{color}"></i>{escape(label)}</span>'
+        for label, color in legend_items
+    )
+
     return f"""
       <section class="chart-card">
         <h2>{escape(month_period.strftime('%B %Y'))}</h2>
         <div class="meta">{''.join(model_metrics)}</div>
+        <div class="legend" style="margin-top: 10px; margin-bottom: 20px;">{legend_html}</div>
         <svg viewBox="0 0 {width} {height}" role="img" aria-label="{escape(month_period.strftime('%B %Y'))} multi-model prediction graph">
           <rect x="0" y="0" width="{width}" height="{height}" rx="12" fill="#ffffff"/>
           <line x1="{padding}" y1="{padding}" x2="{padding}" y2="{height - padding}" stroke="#d8dee8"/>
@@ -77,6 +105,7 @@ def make_month_chart(month_period, month_df):
           <text x="12" y="32">${max_value:.2f}</text>
           <text x="12" y="{height - padding + 4}">${min_value:.2f}</text>
           {''.join(lines)}
+          {''.join(line_labels)}
           {''.join(tick_labels)}
         </svg>
       </section>
@@ -121,18 +150,6 @@ for month_period in latest_three_months:
 result_df = pd.concat(all_rows, ignore_index=True)
 result_df.to_csv(DETAILS_PATH, index=False)
 
-legend_items = [
-    ('Actual', '#111827'),
-    ('RF - Random Forest', '#f97316'),
-    ('SVM - Support Vector Machine', '#22c55e'),
-    ('DT - Decision Tree', '#38bdf8'),
-    ('LR - Linear Regression', '#a855f7'),
-]
-legend_html = ''.join(
-    f'<span><i style="background:{color}"></i>{escape(label)}</span>'
-    for label, color in legend_items
-)
-
 report = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,7 +175,6 @@ report = f"""<!DOCTYPE html>
 <main>
   <h1>Three-Month Actual vs Model Predictions</h1>
   <p>Each graph shows one month. Actual next-day close is plotted with four model predictions in the same graph.</p>
-  <div class="legend">{legend_html}</div>
   {''.join(cards)}
 </main>
 </body>
